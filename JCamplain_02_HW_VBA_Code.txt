@@ -1,0 +1,118 @@
+Sub Stock()
+    Dim ws As Worksheet
+    Dim COMMAND_SPREADSHEET As Boolean
+    
+    COMMAND_SPREADSHEET = True
+    
+    For Each ws In Worksheets
+    
+        Dim Ticketn As String
+        Ticketn = " "
+        
+        Dim TotalVolume As Double
+        TotalVolume = 0
+        
+        Dim Openp As Double
+        Openp = 0
+        Dim Closep As Double
+        Closep = 0
+        Dim Price As Double
+        Price = 0
+        Dim Percent As Double
+        Percent = 0
+        
+        Dim tnmax As String
+        tnmax = " "
+        Dim tnmin As String
+        tnmin = " "
+        Dim pmax As Double
+        pmax = 0
+        Dim pmin As Double
+        pmin = 0
+        Dim vtmax As String
+        vtmax = " "
+        Dim vmax As Double
+        vmax = 0
+        
+        Dim SummaryRow As Long
+        SummaryRow = 2
+        
+        Dim Lastrow As Long
+        Dim i As Long
+        
+        Lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+            ws.Range("I1").Value = "Ticket"
+            ws.Range("J1").Value = "Yearly Change"
+            ws.Range("K1").Value = "Percent Change"
+            ws.Range("L1").Value = "Stock Volume"
+            ws.Range("O2").Value = "Greatest % Increase"
+            ws.Range("O3").Value = "Greatest % Decrease"
+            ws.Range("O4").Value = "Greatest Total Volume"
+            ws.Range("P1").Value = "Ticket"
+            ws.Range("Q1").Value = "Value"
+        
+        Openp = ws.Cells(2, 3).Value
+        
+        For i = 2 To Lastrow
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                Ticketn = ws.Cells(i, 1).Value
+                Closep = ws.Cells(i, 6).Value
+                Price = Closep - Openp
+                
+                If Openp <> 0 Then
+                    Percent = (Price / Openp) * 100
+                End If
+                
+                TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+                ws.Range("I" & SummaryRow).Value = Ticketn
+                ws.Range("J" & SummaryRow).Value = Price
+
+                
+                If (Price > 0) Then
+                    ws.Range("J" & SummaryRow).Interior.ColorIndex = 4
+                ElseIf (Price <= 0) Then
+                    ws.Range("J" & SummaryRow).Interior.ColorIndex = 3
+                End If
+                
+                ws.Range("K" & SummaryRow).Value = (CStr(Percent) & "%")
+                ws.Range("L" & SummaryRow).Value = TotalVolume
+                
+                SummaryRow = SummaryRow + 1
+                Price = 0
+                Closep = 0
+                Openp = ws.Cells(i + 1, 3).Value
+                
+                If (Percent > pmax) Then
+                    pmax = Percent
+                    tnmax = Ticketn
+                ElseIf (Percent < pmin) Then
+                    pmin = Percent
+                    tnmin = Ticketn
+                End If
+                       
+                If (TotalVolume > vmax) Then
+                    vmax = TotalVolume
+                    vtmax = Ticketn
+                End If
+                Percent = 0
+                TotalVolume = 0
+            Else
+                TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+            End If
+      
+        Next i
+            If COMMAND_SPREADSHEET Then
+            
+                ws.Range("Q2").Value = (CStr(pmax) & "%")
+                ws.Range("Q3").Value = (CStr(pmin) & "%")
+                ws.Range("P2").Value = tnmax
+                ws.Range("P3").Value = tnmin
+                ws.Range("Q4").Value = vmax
+                ws.Range("P4").Value = vtmax
+                
+            Else
+                COMMAND_SPREADSHEET = False
+            End If
+     Next ws
+End Sub
